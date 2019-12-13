@@ -1,8 +1,8 @@
 #include "analyser.h"
 
 #include <climits>
-#include< sstream>
-#include<string>
+#include <sstream>
+#include <string>
 
 namespace miniplc0 {
 	std::pair<std::vector<Instruction>, std::optional<CompilationError>> Analyser::Analyse() {
