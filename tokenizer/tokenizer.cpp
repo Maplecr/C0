@@ -162,7 +162,7 @@ namespace miniplc0 {
 						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(0, 0, ErrIntegerOverflow));
 					else {
 						ss >> test;
-						if (test > (2 << 30) - 1) {
+						if (test > 2147483647) {
 							return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(0, 0, ErrIntegerOverflow));
 						}
 						else {
@@ -195,7 +195,7 @@ namespace miniplc0 {
 						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(0, 0, ErrIntegerOverflow));
 					else {
 						ss >> test;
-						if (test > (2 << 30) - 1) {
+						if (test > 2147483647) {
 							return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(0, 0, ErrIntegerOverflow));
 						}
 						else {
