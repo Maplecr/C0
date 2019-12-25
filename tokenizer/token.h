@@ -12,11 +12,28 @@ namespace miniplc0 {
 		NULL_TOKEN,
 		UNSIGNED_INTEGER,
 		IDENTIFIER,
-		BEGIN,
-		END,
-		VAR,
 		CONST,
+		VOID,
+		BEGIN, // ¹Ø¼ü×Ö BEGIN
+		END, // ¹Ø¼ü×Ö END
+		VAR, // ¹Ø¼ü×Ö VAR
+		INT,
+		CHAR,
+		DOUBLE,
+		STRUCT,
+		IF,
+		ELSE,
+		SWITCH,
+		CASE,
+		DEFAULT,
+		WHILE,
+		FOR,
+		DO,
+		RETURN,
+		BREAK,
+		CONTINUE,
 		PRINT,
+		SCAN,
 		PLUS_SIGN,
 		MINUS_SIGN,
 		MULTIPLICATION_SIGN,
@@ -24,7 +41,17 @@ namespace miniplc0 {
 		EQUAL_SIGN,
 		SEMICOLON,
 		LEFT_BRACKET,
-		RIGHT_BRACKET
+		RIGHT_BRACKET,
+		LEFT_BRACE,
+		RIGHT_BRACE,
+		GREATER,
+		LESS,
+		GE,
+		LE,
+		NE,
+		EXC,
+		DE,
+		COMMA
 	};
 
 	class Token final {

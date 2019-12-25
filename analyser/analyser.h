@@ -34,6 +34,16 @@ namespace miniplc0 {
 
 		// <程序>
 		std::optional<CompilationError> analyseProgram();
+		std::optional<CompilationError> analysevariable_declaration();
+		std::optional<CompilationError> function_definition();
+		std::optional<CompilationError> analyseparameter_clause();
+		std::optional<CompilationError> analysecompound_statement();
+		std::optional<CompilationError> analysestatement();
+		std::optional<CompilationError> analyseexpression();
+		std::optional<CompilationError> analysemultiplicative_expression();
+		std::optional<CompilationError> analyseunary_expression();
+		std::optional<CompilationError> analysecondition();
+		std::optional<CompilationError> analysestatement_seq();
 		// <主过程>
 		std::optional<CompilationError> analyseMain();
 		// <常量声明>
@@ -46,7 +56,7 @@ namespace miniplc0 {
 		// 这里的 out 是常表达式的值
 		std::optional<CompilationError> analyseConstantExpression(int32_t& out);
 		// <表达式>
-		std::optional<CompilationError> analyseExpression();
+		//std::optional<CompilationError> analyseExpression();
 		// <赋值语句>
 		std::optional<CompilationError> analyseAssignmentStatement();
 		// <输出语句>

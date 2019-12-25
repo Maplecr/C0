@@ -36,7 +36,15 @@ namespace miniplc0 {
 		ErrDuplicateDeclaration,
 		ErrNotInitialized,
 		ErrInvalidAssignment,
-		ErrInvalidPrint
+		ErrInvalidPrint,
+		//下面是自己加的
+		ErrNeedInt,
+		ErrNeedLEFT_BRACKET,
+		Errparameter_clause,
+		Errcompound_statement,
+		Errstatement_seq,
+		Errcondition,
+		Errexpression
 	};
 
 	class CompilationError final{

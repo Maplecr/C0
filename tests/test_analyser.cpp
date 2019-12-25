@@ -8,10 +8,134 @@
 #include <sstream>
 #include <vector>
 
-TEST_CASE("missing_begin_end", "[invalid]") {
+//TEST_CASE("1", "[valid]") {
+//	std::string input =
+//		"const int a = 1+i;"
+//		;
+//	std::stringstream ss;
+//	ss.str(input);
+//	miniplc0::Tokenizer tkz(ss);
+//	auto tokens = tkz.AllTokens();
+//	if (tokens.second.has_value())
+//		FAIL();
+//	miniplc0::Analyser analyser(tokens.first);
+//	auto instructions = analyser.Analyse();
+//	REQUIRE(!(instructions.second.has_value()));
+//}
+//
+//TEST_CASE("2", "[valid]") {
+//	std::string input =
+//		"int a = 3,b,c=1,d;\n"
+//		"const int i=1;\n"
+//		"int return1(){\n"
+//		"return 1;\n"
+//		"}\n"
+//		"void fun(const int a,int b,int c){\n"
+//		"int result;\n"
+//		"int i=0 ;\n"
+//		"{\n"
+//		"a = 7;b=4;\n"
+//		"result = a+b;\n"
+//		"{{{{{{\n"
+//		"print(123,a,b);\n"
+//		"}}}}}}\n"
+//		"}\n"
+//		"while(i<=8){\n"
+//		"i = i+1;\n"
+//		"}\n"
+//		"print(234,return1());\n"
+//		"print();"
+//		"scan(i);\n"
+//		"if(i){;;;}"
+//		"else{i = return1();}\n"
+//		"}\n"
+//		"void main(){\n"
+//		"fun();\n"
+//		";;;;\n"
+//		"}\n"
+//		;
+//	std::stringstream ss;
+//	ss.str(input);
+//	miniplc0::Tokenizer tkz(ss);
+//	auto tokens = tkz.AllTokens();
+//	if (tokens.second.has_value())
+//		FAIL();
+//	miniplc0::Analyser analyser(tokens.first);
+//	auto instructions = analyser.Analyse();
+//	REQUIRE(!(instructions.second.has_value()));
+//}
+//
+//TEST_CASE("3", "[valid]") {
+//	std::string input =
+//
+//		"void swap(int x, int y)\n"
+//		"{\n"
+//		"int temp;\n"
+//		"temp = x;\n"
+//		"x = y;\n"
+//		"y = temp;\n"
+//		"}\n"
+//		"int mod(int x, int y)\n"
+//		"{\n"
+//		"return (x - x / y * y);\n"
+//		"}\n"
+//		"void main()\n"
+//		"{\n"
+//		"int a, b, c, temp1, temp2, result1, result2;\n"
+//		"print();\n"
+//		"scan(a);\n"
+//		"print();\n"
+//		"scan(b);\n"
+//		"temp1 = a;\n"
+//		"temp2 = b;\n"
+//		"if (temp1 != 0)\n"
+//		"{\n"
+//		"print(temp1);\n"
+//		"print(temp2);\n"
+//		"swap(temp1, temp2);\n"
+//		"print(temp1);\n"
+//		"print(temp2);\n"
+//		"c = mod(a, b);\n"
+//		"print(c);\n"
+//		"}\n"
+//		"result1 = temp2;\n"
+//		"result2 = a * b / result1;\n"
+//		"print(result1);\n"
+//		"print(result2);\n"
+//		"}\n"
+//		;
+//	std::stringstream ss;
+//	ss.str(input);
+//	miniplc0::Tokenizer tkz(ss);
+//	auto tokens = tkz.AllTokens();
+//	if (tokens.second.has_value())
+//		FAIL();
+//	miniplc0::Analyser analyser(tokens.first);
+//	auto instructions = analyser.Analyse();
+//	REQUIRE(!(instructions.second.has_value()));
+//}
+
+TEST_CASE("4", "[valid]") {
 	std::string input =
-		"var a = 1;\n"
-		"print(a);\n"
+		"void main()\n"
+		"{\n"
+		"int a, b;\n"
+		//"print(a);\n"
+		//"scan(a);\n"
+		//"print(b);\n"
+		//"scan(b);\n"
+		//"while (b != 0)\n"
+		//"{\n"
+		//"print(a + b);\n"
+		//"print(a - b);\n"
+		//"print(a * b);\n"
+		//"print(a / b);\n"
+		//"print(a);\n"
+		//"scan(a);\n"
+		//"print(b);\n"
+		//"scan(b);\n"
+		//"}\n"
+		"}\n"
 		;
 	std::stringstream ss;
 	ss.str(input);
@@ -21,402 +145,34 @@ TEST_CASE("missing_begin_end", "[invalid]") {
 		FAIL();
 	miniplc0::Analyser analyser(tokens.first);
 	auto instructions = analyser.Analyse();
-	REQUIRE((instructions.second.has_value()));
+	REQUIRE(!(instructions.second.has_value()));
 }
 
-TEST_CASE("missing_semicolon", "[invalid]") {
-	std::string input =
-		"begin\n"
-		"const A = 1;\n"
-		"var B = A;\n"
-		"print(A)\n"
-		"end\n"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	REQUIRE((instructions.second.has_value()));
-}
-
-TEST_CASE("redeclaration", "[invalid]") {
-	std::string input =
-		"begin\n"
-		"const A = 1;\n"
-		"var A;\n"
-		"end\n"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	REQUIRE((instructions.second.has_value()));
-}
-
-TEST_CASE("uninit", "[invalid]") {
-	std::string input =
-		"begin\n"
-		"var a;\n"
-		"print(a);\n"
-		"end\n"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	REQUIRE((instructions.second.has_value()));
-}
-
-TEST_CASE("var_const", "[invalid]") {
-	std::string input =
-		"begin\n"
-		"var a;\n"
-		"const b = 1;\n"
-		"end\n"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	REQUIRE((instructions.second.has_value()));
-}
-
-TEST_CASE("assign", "[valid]") {
-	std::string input =
-		"begin\n"
-		"var a = 1;\n"
-		"var b;\n"
-		"var c;\n"
-		"var d;\n"
-		"var e;\n"
-		"b = a;\n"
-		"e = b;\n"
-		"d = e;\n"
-		"c = a;\n"
-		"print(c);\n"
-		"end\n"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	if (instructions.second.has_value())
-		FAIL();
-	miniplc0::VM vm(instructions.first);
-	std::vector<int32_t> writes = vm.Run();
-	std::vector<int32_t> output = {};
-	output.emplace_back(1);
-	REQUIRE((writes == output));
-}
-
-TEST_CASE("declaration", "[valid]") {
-	std::string input =
-		"begin\n"
-		"const abc = 123;\n"
-		"var ABC = 456;\n"
-		"print(abc);\n"
-		"print(ABC);\n"
-		"end\n"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	if (instructions.second.has_value())
-		FAIL();
-	miniplc0::VM vm(instructions.first);
-	std::vector<int32_t> writes = vm.Run();
-	std::vector<int32_t> output = {};
-	output.emplace_back(123);
-	output.emplace_back(456);
-	REQUIRE((writes == output));
-}
-
-TEST_CASE("init", "[valid]") {
-	std::string input =
-		"begin\n"
-		"var a = 0;\n"
-		"var b = 1;\n"
-		"var c = a+b;\n"
-		"a = b;\n"
-		"c = c;\n"
-		"c = a+b;\n"
-		"a = b;\n"
-		"b = c;\n"
-		"print(a);\n"
-		"print(b);\n"
-		"print(c);\n"
-		"end\n"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	if (instructions.second.has_value()) {
-		std::cout << instructions.second.value().GetCode() << "\n";
-		FAIL();
-	}
-	miniplc0::VM vm(instructions.first);
-	std::vector<int32_t> writes = vm.Run();
-	std::vector<int32_t> output = {};
-	output.emplace_back(1);
-	output.emplace_back(2);
-	output.emplace_back(2);
-	REQUIRE((writes == output));
-}
-
-TEST_CASE("no_begin", "[invalid]") {
-	std::string input =
-		"end"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	REQUIRE((instructions.second.has_value()));
-}
-
-TEST_CASE("no_end", "[invalid]") {
-	std::string input =
-		"begin"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	REQUIRE((instructions.second.has_value()));
-}
-
-TEST_CASE("no_semicolon", "[invalid]") {
-	std::string input =
-		"begin\n"
-		"   const a = 1\n"
-		"end"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	REQUIRE((instructions.second.has_value()));
-}
-
-TEST_CASE("const_no_value", "[invalid]") {
-	std::string input =
-		"begin\n"
-		"   const a;\n"
-		"   const b;\n"
-		"end"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	REQUIRE((instructions.second.has_value()));
-}
-
-TEST_CASE("const_duplicate", "[invalid]") {
-	std::string input =
-		"begin\n"
-		"   const a = 1;\n"
-		"   const a = 2;\n"
-		"end"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	REQUIRE((instructions.second.has_value()));
-}
-
-TEST_CASE("var_duplicate", "[invalid]") {
-	std::string input =
-		"begin\n"
-		"   var a;\n"
-		"   var a;\n"
-		"end"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	REQUIRE((instructions.second.has_value()));
-}
-
-TEST_CASE("assign_to_const", "[invalid]") {
-	std::string input =
-		"begin\n"
-		"   const a = 1;\n"
-		"   a = 2;\n"
-		"end"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	REQUIRE((instructions.second.has_value()));
-}
-
-TEST_CASE("assign_no_value", "[invalid]") {
-	std::string input =
-		"begin\n"
-		"   var a;\n"
-		"   a = ;\n"
-		"end"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	REQUIRE((instructions.second.has_value()));
-}
-
-TEST_CASE("print_no_value", "[invalid]") {
-	std::string input =
-		"begin\n"
-		"   print();\n"
-		"end"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	REQUIRE((instructions.second.has_value()));
-}
-
-TEST_CASE("valid_empty", "[valid]") {
-	std::string input =
-		"begin\n"
-		"end"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	if (instructions.second.has_value())
-		FAIL();
-	miniplc0::VM vm(instructions.first);
-	std::vector<int32_t> writes = vm.Run();
-	std::vector<int32_t> output = {};
-	REQUIRE((writes == output));
-}
-
-TEST_CASE("valid_empty_statement", "[valid]") {
-	std::string input =
-		"begin\n"
-		"   ;;;;;;;;;;;;\n"
-		"   ;;;;;\n"
-		"end"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	if (instructions.second.has_value())
-		FAIL();
-	miniplc0::VM vm(instructions.first);
-	std::vector<int32_t> writes = vm.Run();
-	std::vector<int32_t> output = {};
-	REQUIRE((writes == output));
-}
-
-TEST_CASE("valid_overview", "[valid]") {
-	std::string input =
-		"begin\n"
-		"   const a = 1;\n"
-		"   const b = -2147483647;\n"
-		"   var c;\n"
-		"   var d = a + b + 6;\n"
-		"   c = 3;\n"
-		"   d = 5;\n"
-		"   print((-d + c) * a);\n"
-		"   ;\n"
-		"end\n"
-		;
-	std::stringstream ss;
-	ss.str(input);
-	miniplc0::Tokenizer tkz(ss);
-	auto tokens = tkz.AllTokens();
-	if (tokens.second.has_value())
-		FAIL();
-	miniplc0::Analyser analyser(tokens.first);
-	auto instructions = analyser.Analyse();
-	if (instructions.second.has_value())
-		FAIL();
-	miniplc0::VM vm(instructions.first);
-	std::vector<int32_t> writes = vm.Run();
-	std::vector<int32_t> output = {};
-	output.emplace_back(-2);
-	REQUIRE((writes == output));
-}
+//TEST_CASE("5", "[valid]") {
+//	std::string input =
+//		"const int PI = 3;\n"
+//		"int radius, area, perimeter;\n"
+//		"void main(){\n"
+//		"print(PI);\n"
+//		"scan(radius);\n"
+//		"if (radius < 0)\n"
+//		"print(0);\n"
+//		"else{\n"
+//		"print(radius);\n"
+//		"perimeter = 2 * PI * radius;\n"
+//		"area = PI * radius * radius;\n"
+//		"}\n"
+//		"print(PI);\n"
+//		"print(area);\n"
+//		"}\n"
+//		;
+//	std::stringstream ss;
+//	ss.str(input);
+//	miniplc0::Tokenizer tkz(ss);
+//	auto tokens = tkz.AllTokens();
+//	if (tokens.second.has_value())
+//		FAIL();
+//	miniplc0::Analyser analyser(tokens.first);
+//	auto instructions = analyser.Analyse();
+//	REQUIRE(!(instructions.second.has_value()));
+//}

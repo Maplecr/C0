@@ -30,7 +30,18 @@ namespace miniplc0 {
 			EQUAL_SIGN_STATE,
 			SEMICOLON_STATE,
 			LEFTBRACKET_STATE,
-			RIGHTBRACKET_STATE
+			RIGHTBRACKET_STATE,
+			HEX_STATE,
+			LESS_STATE,
+			GREATER_STATE,
+			GE_STATE,
+			LE_STATE,
+			LEFTBRACE_STATE,
+			RIGHTBRACE_STATE,
+			EXC_STATE,
+			NE_STATE,
+			COMMA_STATE,
+			double_equal_State
 		};
 	public:
 		Tokenizer(std::istream& ifs)
@@ -79,6 +90,7 @@ namespace miniplc0 {
 		std::optional<char> nextChar();
 		bool isEOF();
 		void unreadLast();
+		unsigned long HextoDec(std::string hex);
 	private:
 		std::istream& _rdr;
 		// 如果没有初始化，那么就 readAll

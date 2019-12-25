@@ -1,3 +1,4 @@
+#include "tokenizer.h"
 #include "tokenizer/tokenizer.h"
 
 #include <cctype>
@@ -81,9 +82,12 @@ namespace miniplc0 {
 					current_state = DFAState::INITIAL_STATE; // 保留当前状态为初始状态，此处直接break也是可以的
 				else if (!miniplc0::isprint(ch)) // control codes and backspace
 					invalid = true;
+				else if (ch == '0')
+					current_state = DFAState::HEX_STATE;
 				else if (miniplc0::isdigit(ch)) // 读到的字符是数字
 					current_state = DFAState::UNSIGNED_INTEGER_STATE; // 切换到无符号整数的状态
 				else if (miniplc0::isalpha(ch)) // 读到的字符是英文字母
+					//cout << "1" << endl;
 					current_state = DFAState::IDENTIFIER_STATE; // 切换到标识符的状态
 				else {
 					switch (ch) {
@@ -110,6 +114,9 @@ namespace miniplc0 {
 						///// 请填空：
 						///// 对于其他的可接受字符
 						///// 切换到对应的状态
+					case ',':
+						current_state = DFAState::COMMA_STATE;
+						break;
 					case '(':
 						current_state = DFAState::LEFTBRACKET_STATE;
 						break;
@@ -119,7 +126,21 @@ namespace miniplc0 {
 					case ';':
 						current_state = DFAState::SEMICOLON_STATE;
 						break;
-
+					case '<':
+						current_state = DFAState::LESS_STATE;
+						break;
+					case '>':
+						current_state = DFAState::GREATER_STATE;
+						break;
+					case '!':
+						current_state = DFAState::EXC_STATE;
+						break;
+					case '{':
+						current_state = DFAState::LEFTBRACE_STATE;
+						break;
+					case '}':
+						current_state = DFAState::RIGHTBRACE_STATE;
+						break;
 						// 不接受的字符导致的不合法的状态
 					default:
 						invalid = true;
@@ -153,10 +174,8 @@ namespace miniplc0 {
 				if (!current_char.has_value()) {
 					//     解析成功则返回无符号整数类型的token，否则返回编译错误
 					str = ss.str();
-					for (i = 0; i < str.length(); i++) {
-						if (str.at(i) == '0') {
-							continue;
-						}
+					if (str.at(0) == '0') {
+						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(0, 0, ErrInvalidInput));
 					}
 					if (str.length() - i > 10)
 						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(0, 0, ErrIntegerOverflow));
@@ -186,12 +205,10 @@ namespace miniplc0 {
 
 					unreadLast();
 					str = ss.str();
-					for (i = 0; i < str.length(); i++) {
-						if (str.at(i) == '0') {
-							continue;
-						}
+					if (str.at(0) == '0') {
+						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(0, 0, ErrInvalidInput));
 					}
-					if (str.length() - i > 10)
+					if (str.length()  > 10)
 						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(0, 0, ErrIntegerOverflow));
 					else {
 						ss >> test;
@@ -206,6 +223,59 @@ namespace miniplc0 {
 				}
 				break;
 			}
+
+			case HEX_STATE: {
+				// 请填空：
+				auto ch = current_char.value();
+				int i;
+				std::string str;
+				long long test;
+				// 如果当前已经读到了文件尾，则解析已经读到的字符串为整数
+				if (!current_char.has_value()) {
+					//     解析成功则返回无符号整数类型的token，否则返回编译错误
+					str = ss.str();
+					test = Tokenizer::HextoDec(str);
+					if (test == -1) {
+						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(0, 0, ErrInvalidInput));
+					}
+					if (test > 2147483647) {
+						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(0, 0, ErrIntegerOverflow));
+					}
+					else {
+						int32_t a = test;
+						return std::make_pair(std::make_optional<Token>(TokenType::UNSIGNED_INTEGER, a, pos, currentPos()), std::optional<CompilationError>());
+					}
+
+
+				}
+				// 如果读到的字符是数字，则存储读到的字符
+				else if (miniplc0::isdigit(ch)) {
+					ss << ch;
+				}
+				// 如果读到的是字母，则存储读到的字符
+				else if (miniplc0::isalpha(ch)) {
+					ss << ch;
+				}
+				// 如果读到的字符不是上述情况之一，则回退读到的字符，并解析已经读到的字符串为整数
+				//     解析成功则返回无符号整数类型的token，否则返回编译错误
+				else {
+					unreadLast();
+					str = ss.str();
+					test = Tokenizer::HextoDec(str);
+					if (test == -1) {
+						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(0, 0, ErrInvalidInput));
+					}
+					if (test > 2147483647) {
+						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(0, 0, ErrIntegerOverflow));
+					}
+					else {
+						int32_t a = test;
+						return std::make_pair(std::make_optional<Token>(TokenType::UNSIGNED_INTEGER, a, pos, currentPos()), std::optional<CompilationError>());
+					}
+				}
+				break;
+			}
+
 			case IDENTIFIER_STATE: {
 				// 请填空：
 				std::string temp;
@@ -219,16 +289,44 @@ namespace miniplc0 {
 				if (!current_char.has_value()) {
 					//     如果解析结果是关键字，那么返回对应关键字的token，否则返回标识符的token
 					temp = ss.str();
-					if (temp == "begin")
-						return std::make_pair(std::make_optional<Token>(TokenType::BEGIN, "begin", pos, currentPos()), std::optional<CompilationError>());
-					else if (temp == "end")
-						return std::make_pair(std::make_optional<Token>(TokenType::END, "end", pos, currentPos()), std::optional<CompilationError>());
-					else if (temp == "const")
-						return std::make_pair(std::make_optional<Token>(TokenType::CONST, "const", pos, currentPos()), std::optional<CompilationError>());
-					else if (temp == "var")
-						return std::make_pair(std::make_optional<Token>(TokenType::VAR, "var", pos, currentPos()), std::optional<CompilationError>());
+					if (temp == "const")
+						return std::make_pair(std::make_optional<Token>(TokenType::CONST, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "void")
+						return std::make_pair(std::make_optional<Token>(TokenType::VOID, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "int")
+						return std::make_pair(std::make_optional<Token>(TokenType::INT, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "char")
+						return std::make_pair(std::make_optional<Token>(TokenType::CHAR, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "double")
+						return std::make_pair(std::make_optional<Token>(TokenType::DOUBLE, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "struct")
+						return std::make_pair(std::make_optional<Token>(TokenType::STRUCT, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "if")
+						return std::make_pair(std::make_optional<Token>(TokenType::IF, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "else")
+						return std::make_pair(std::make_optional<Token>(TokenType::ELSE, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "switch")
+						return std::make_pair(std::make_optional<Token>(TokenType::SWITCH, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "case")
+						return std::make_pair(std::make_optional<Token>(TokenType::CASE, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "default")
+						return std::make_pair(std::make_optional<Token>(TokenType::DEFAULT, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "while")
+						return std::make_pair(std::make_optional<Token>(TokenType::WHILE, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "for")
+						return std::make_pair(std::make_optional<Token>(TokenType::FOR, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "do")
+						return std::make_pair(std::make_optional<Token>(TokenType::DO, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "return")
+						return std::make_pair(std::make_optional<Token>(TokenType::RETURN, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "break")
+						return std::make_pair(std::make_optional<Token>(TokenType::BREAK, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "continue")
+						return std::make_pair(std::make_optional<Token>(TokenType::CONTINUE, temp, pos, currentPos()), std::optional<CompilationError>());
 					else if (temp == "print")
-						return std::make_pair(std::make_optional<Token>(TokenType::PRINT, "print", pos, currentPos()), std::optional<CompilationError>());
+						return std::make_pair(std::make_optional<Token>(TokenType::PRINT, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "scan")
+						return std::make_pair(std::make_optional<Token>(TokenType::SCAN, temp, pos, currentPos()), std::optional<CompilationError>());
 					else {
 						return std::make_pair(std::make_optional<Token>(TokenType::IDENTIFIER, temp, pos, currentPos()), std::optional<CompilationError>());
 					}
@@ -240,16 +338,44 @@ namespace miniplc0 {
 				else {
 					unreadLast();
 					temp = ss.str();
-					if (temp == "begin")
-						return std::make_pair(std::make_optional<Token>(TokenType::BEGIN, temp, pos, currentPos()), std::optional<CompilationError>());
-					else if (temp == "end")
-						return std::make_pair(std::make_optional<Token>(TokenType::END, temp, pos, currentPos()), std::optional<CompilationError>());
-					else if (temp == "const")
+					if (temp == "const")
 						return std::make_pair(std::make_optional<Token>(TokenType::CONST, temp, pos, currentPos()), std::optional<CompilationError>());
-					else if (temp == "var")
-						return std::make_pair(std::make_optional<Token>(TokenType::VAR, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "void")
+						return std::make_pair(std::make_optional<Token>(TokenType::VOID, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "int")
+						return std::make_pair(std::make_optional<Token>(TokenType::INT, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "char")
+						return std::make_pair(std::make_optional<Token>(TokenType::CHAR, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "double")
+						return std::make_pair(std::make_optional<Token>(TokenType::DOUBLE, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "struct")
+						return std::make_pair(std::make_optional<Token>(TokenType::STRUCT, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "if")
+						return std::make_pair(std::make_optional<Token>(TokenType::IF, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "else")
+						return std::make_pair(std::make_optional<Token>(TokenType::ELSE, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "switch")
+						return std::make_pair(std::make_optional<Token>(TokenType::SWITCH, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "case")
+						return std::make_pair(std::make_optional<Token>(TokenType::CASE, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "default")
+						return std::make_pair(std::make_optional<Token>(TokenType::DEFAULT, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "while")
+						return std::make_pair(std::make_optional<Token>(TokenType::WHILE, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "for")
+						return std::make_pair(std::make_optional<Token>(TokenType::FOR, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "do")
+						return std::make_pair(std::make_optional<Token>(TokenType::DO, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "return")
+						return std::make_pair(std::make_optional<Token>(TokenType::RETURN, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "break")
+						return std::make_pair(std::make_optional<Token>(TokenType::BREAK, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "continue")
+						return std::make_pair(std::make_optional<Token>(TokenType::CONTINUE, temp, pos, currentPos()), std::optional<CompilationError>());
 					else if (temp == "print")
 						return std::make_pair(std::make_optional<Token>(TokenType::PRINT, temp, pos, currentPos()), std::optional<CompilationError>());
+					else if (temp == "scan")
+						return std::make_pair(std::make_optional<Token>(TokenType::SCAN, temp, pos, currentPos()), std::optional<CompilationError>());
 					else {
 						return std::make_pair(std::make_optional<Token>(TokenType::IDENTIFIER, temp, pos, currentPos()), std::optional<CompilationError>());
 					}
@@ -273,9 +399,16 @@ namespace miniplc0 {
 			}
 
 			case EQUAL_SIGN_STATE: {
-				unreadLast();
-				return std::make_pair(std::make_optional<Token>(TokenType::EQUAL_SIGN, '=', pos, currentPos()), std::optional<CompilationError>());
-				// 请填空：回退，并返回减号token
+				auto ch = current_char.value();
+				if (ch == '=') {
+					ss << ch;
+					current_state = DFAState::double_equal_State;
+				}
+				else {
+					unreadLast();
+					return std::make_pair(std::make_optional<Token>(TokenType::EQUAL_SIGN, '=', pos, currentPos()), std::optional<CompilationError>());
+				}
+				break;
 			}
 
 			case MULTIPLICATION_SIGN_STATE: {
@@ -306,6 +439,78 @@ namespace miniplc0 {
 				unreadLast();
 				return std::make_pair(std::make_optional<Token>(TokenType::SEMICOLON, ';', pos, currentPos()), std::optional<CompilationError>());
 				// 请填空：回退，并返回减号token
+			}
+			case LEFTBRACE_STATE: {
+				unreadLast();
+				return std::make_pair(std::make_optional<Token>(TokenType::LEFT_BRACE, '{', pos, currentPos()), std::optional<CompilationError>());
+			}
+			case COMMA_STATE: {
+				unreadLast();
+				return std::make_pair(std::make_optional<Token>(TokenType::COMMA, ',', pos, currentPos()), std::optional<CompilationError>());
+			}
+			case RIGHTBRACE_STATE: {
+				unreadLast();
+				return std::make_pair(std::make_optional<Token>(TokenType::RIGHT_BRACE, '}', pos, currentPos()), std::optional<CompilationError>());
+			}
+			case GREATER_STATE: {
+				auto ch = current_char.value();
+				if (ch == '=') {
+					ss << ch;
+					current_state = DFAState::GE_STATE;
+				}
+				else {
+					unreadLast();
+					return std::make_pair(std::make_optional<Token>(TokenType::GREATER, '>', pos, currentPos()), std::optional<CompilationError>());
+				}
+				break;
+			}
+			case LESS_STATE: {
+				auto ch = current_char.value();
+				if (ch == '=') {
+					ss << ch;
+					current_state = DFAState::LE_STATE;
+				}
+				else {
+					unreadLast();
+					return std::make_pair(std::make_optional<Token>(TokenType::LESS, '<', pos, currentPos()), std::optional<CompilationError>());
+				}
+				break;
+			}
+
+			case EXC_STATE: {
+				auto ch = current_char.value();
+				if (ch == '=') {
+					ss << ch;
+					current_state = DFAState::NE_STATE;
+				}
+				else {
+					unreadLast();
+					return std::make_pair(std::make_optional<Token>(TokenType::EXC, '!', pos, currentPos()), std::optional<CompilationError>());
+				}
+				break;
+			}
+
+			case GE_STATE: {
+				unreadLast();
+				std::string str = ">=";
+				return std::make_pair(std::make_optional<Token>(TokenType::GE, str, pos, currentPos()), std::optional<CompilationError>());
+			}
+			case LE_STATE: {
+				unreadLast();
+				std::string str = "<=";
+				return std::make_pair(std::make_optional<Token>(TokenType::LE, str, pos, currentPos()), std::optional<CompilationError>());
+			}
+
+			case NE_STATE: {
+				unreadLast();
+				std::string str = "!=";
+				return std::make_pair(std::make_optional<Token>(TokenType::NE, str, pos, currentPos()), std::optional<CompilationError>());
+			}
+
+			case double_equal_State: {
+				unreadLast();
+				std::string str = "==";
+				return std::make_pair(std::make_optional<Token>(TokenType::DE, str, pos, currentPos()), std::optional<CompilationError>());
 			}
 
 
@@ -385,5 +590,37 @@ namespace miniplc0 {
 	// Note: Is it evil to unread a buffer?
 	void Tokenizer::unreadLast() {
 		_ptr = previousPos();
+	}
+
+
+	unsigned long Tokenizer::HextoDec(std::string hex) {
+		int len = hex.length();
+		int i;
+		unsigned long rslt = 0;
+		if (len == 1 && hex == "0")
+			return 0;
+		else if (len == 2)
+			return -1;
+		if (hex.at(0) == '0' && (hex.at(1) == 'x' || hex.at(1) == 'X')) {
+			for (i = 2; i < len; i++)
+			{
+				if((hex.at(i) >= '0' && hex.at(i) <= '9'))
+					rslt += (hex.at(i) - '0') << (4 * (len - 1 - i));
+				else if ((hex.at(i) >= 'a' && hex.at(i) <= 'f')) {
+					rslt += (hex.at(i) - 'a' + 10) << (4 * (len - 1 - i));
+				}
+				else if (hex.at(i) >= 'A' && hex.at(i) <= 'F') {
+					rslt += (hex.at(i) - 'A' + 10) << (4 * (len - 1 - i));
+				}
+				else
+				{
+					return -1;
+				}
+			}
+			return rslt;
+		}
+		else {
+			return -1;
+		}
 	}
 }
