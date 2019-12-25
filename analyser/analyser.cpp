@@ -63,9 +63,17 @@ namespace miniplc0 {
 
 			//< init - declarator - list >
 			next = nextToken();
+			auto next2 = nextToken();
+			if (next.value().GetType() == TokenType::IDENTIFIER && next2.value().GetType() == TokenType::LEFT_BRACKET) {
+				unreadToken();
+				unreadToken();
+				unreadToken();
+				return {};
+			}
+			unreadToken();
 			if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
 				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedIdentifier);
-			auto next2 = nextToken();
+			 next2 = nextToken();
 			if (!next2.has_value())
 				return {};
 			if (next2.value().GetType() == TokenType::EQUAL_SIGN) {
@@ -84,7 +92,8 @@ namespace miniplc0 {
 					return {};
 				if (next.value().GetType() != TokenType::COMMA) {
 					unreadToken();
-					return {};
+					//return {};
+					break;
 				}
 				next = nextToken();
 				if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
@@ -103,6 +112,7 @@ namespace miniplc0 {
 					return {};
 				}
 			}
+			next = nextToken();
 			if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
 				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
 		}
@@ -173,7 +183,12 @@ namespace miniplc0 {
 					return {};
 				if (next.value().GetType() != TokenType::COMMA) {
 					unreadToken();
-					break;
+					//break;
+					next = nextToken();
+					if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET) {
+						return std::make_optional<CompilationError>(_current_pos, ErrorCode::Errparameter_clause);
+					}
+					return {};
 				}
 				next = nextToken();
 				if (!next.has_value() || (next.value().GetType() != TokenType::CONST && next.value().GetType() != TokenType::INT)) {
@@ -191,7 +206,10 @@ namespace miniplc0 {
 				}
 			}
 		}
-		next = nextToken();
+		//else {
+		//	unreadToken();
+		//}
+		//next = nextToken();
 		if(!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET){
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::Errparameter_clause);
 		}
