@@ -30,6 +30,9 @@ namespace miniplc0 {
 			auto err = analysevariable_declaration();
 			if (err.has_value())
 				return err;
+
+			isGlobal = false;
+
 		//<function - definition>
 			err = function_definition();
 			if (err.has_value())
@@ -47,6 +50,7 @@ namespace miniplc0 {
 	//		'=' < expression >
 	std::optional<CompilationError> Analyser::analysevariable_declaration() {
 		while (true) {
+			bool isConst = false;
 			auto next = nextToken();
 			if (!next.has_value())
 				return {};
@@ -55,6 +59,7 @@ namespace miniplc0 {
 				return {};
 			}
 			if (next.value().GetType() == TokenType::CONST) {
+				isConst = true;
 				next = nextToken();
 				if (!next.has_value() || next.value().GetType() != TokenType::INT) {
 					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedInt);
@@ -572,6 +577,7 @@ namespace miniplc0 {
 		else {
 			return {};
 		}
+		return {};
 	}
 
 	std::optional<CompilationError> Analyser::analysecondition() {

@@ -107,5 +107,6 @@ namespace miniplc0 {
 		std::map<std::string, int32_t> _consts;
 		// 下一个 token 在栈的偏移
 		int32_t _nextTokenIndex;
+		bool isGlobal = true;
 	};
 }
